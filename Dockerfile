@@ -1,6 +1,9 @@
 FROM behance/docker-base:latest
 MAINTAINER Malcolm Jones <bossjones@theblacktonystark.com>
 
+# source: http://stackoverflow.com/questions/28517090/docker-hub-automated-build-fails-but-locally-not
+ENV HOME=/root
+
 # Prepare packaging environment
 ENV DEBIAN_FRONTEND noninteractive
 
