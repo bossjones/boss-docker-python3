@@ -17,9 +17,6 @@ ENV PATH /usr/local/bin:$PATH
 # > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
 ENV LANG C.UTF-8
 
-# Ensure cleanup script is available for the next command
-ADD ./container/root/clean.sh /clean.sh
-
 RUN apt-get update -q && \
     apt-get upgrade -yqq && \
     apt-get install -yqq \
@@ -83,7 +80,10 @@ RUN apt-get update -q && \
     		xz-utils \
     		zlib1g-dev \
             bash \
-    	&& /clean.sh
+    	&& apt-get autoclean -y && \
+      apt-get autoremove -y && \
+      rm -rf /var/lib/{cache,log}/ && \
+      rm -rf /var/lib/apt/lists/*.lz4
 
 ENV GPG_KEY 97FC712E4C024BBEA48A61ED3A5CA953F73C700D
 ENV PYTHON_VERSION 3.5.2
@@ -146,7 +146,10 @@ RUN set -ex \
 	&& ln -s python3 python \
 	&& ln -s python3-config python-config \
     && pip3 install virtualenv virtualenvwrapper ipython \
-    && /clean.sh
+    && apt-get autoclean -y && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/{cache,log}/ && \
+    rm -rf /var/lib/apt/lists/*.lz4
 
 # Overlay the root filesystem from this repo
 COPY ./container/root /
