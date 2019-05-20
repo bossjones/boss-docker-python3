@@ -17,31 +17,36 @@ ENV PATH /usr/local/bin:$PATH
 # > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
 ENV LANG C.UTF-8
 
-RUN apt-get update -q && \
-    apt-get upgrade -yqq && \
-    apt-get install -yqq \
+RUN set -x; rm -rf /var/lib/apt/lists/* && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y \
         git \
         curl \
         wget \
         curl \
+        locales \
         software-properties-common \
         ca-certificates \
     && \
-    locale-gen en_US.UTF-8 && export LANG=en_US.UTF-8 && \
-    apt-get update && apt-get install -y --no-install-recommends \
+    locale-gen en_US.UTF-8 \
+    && \
+    export LANG=en_US.UTF-8 \
+    && \
+    apt-get install -y --no-install-recommends \
     		tcl \
     		tk \
             wget \
             curl \
             ca-certificates && \
-    apt-get update && apt-get install -y --no-install-recommends \
+    apt-get install -y --no-install-recommends \
     		bzr \
     		git \
     		mercurial \
     		openssh-client \
     		subversion \
     		procps && \
-    apt-get update && apt-get install -y --no-install-recommends \
+    apt-get install -y --no-install-recommends \
     		autoconf \
     		automake \
     		bzip2 \
@@ -49,36 +54,11 @@ RUN apt-get update -q && \
     		g++ \
     		gcc \
     		imagemagick \
-    		libbz2-dev \
-    		libc6-dev \
-    		libcurl4-openssl-dev \
-    		libdb-dev \
-    		libevent-dev \
-    		libffi-dev \
-    		libgeoip-dev \
-    		libglib2.0-dev \
-    		libjpeg-dev \
-    		libkrb5-dev \
-    		liblzma-dev \
-    		libmagickcore-dev \
-    		libmagickwand-dev \
-    		libmysqlclient-dev \
-    		libncurses-dev \
-    		libpng-dev \
-    		libpq-dev \
-    		libreadline-dev \
-    		libsqlite3-dev \
-    		libssl-dev \
-    		libtool \
-    		libwebp-dev \
-    		libxml2-dev \
-    		libxslt-dev \
-    		libyaml-dev \
+        libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev \
+        bash \
     		make \
     		patch \
     		xz-utils \
-    		zlib1g-dev \
-            bash \
     	&& apt-get autoclean -y && \
       apt-get autoremove -y && \
       rm -rf /var/lib/{cache,log}/ && \
@@ -97,8 +77,8 @@ RUN set -ex \
 	' \
 	&& apt-get update && apt-get install -y $buildDeps --no-install-recommends && rm -rf /var/lib/apt/lists/* \
 	\
-	&& wget -O python.tar.xz "{{ python_tar_full_uri }}" \
-	&& wget -O python.tar.xz.asc "{{ python_tar_full_uri }}.asc" \
+	&& wget -O python.tar.xz '{{ python_tar_url_base }}/{{ python_version }}/Python-{{ python_version }}.tar.xz' \
+  && wget -O python.tar.xz.asc '{{ python_tar_url_base }}/{{ python_version }}/Python-{{ python_version }}.tar.xz.asc' \
 	&& export GNUPGHOME="$(mktemp -d)" \
 	&& gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$GPG_KEY" \
 	&& gpg --batch --verify python.tar.xz.asc python.tar.xz \
