@@ -3,37 +3,37 @@ images:
     aliases:
       - index.docker.io/bossjones/boss-docker-python3
     facts:
-      python_version: 3.5.2
+      python_version: 3.5.7
       python_version_major: 3
       python_version_minor: 5
-      python_version_patch: 2
+      python_version_patch: 7
       python_gpg_key: 97FC712E4C024BBEA48A61ED3A5CA953F73C700D
       python_tar_url_base: https://www.python.org/ftp/python
       python_tar_file_name: Python-{{ python_version }}.tar.xz
       pip_version: 19.1.1
 
-  boss-docker-python3-36:
-    aliases:
-      - index.docker.io/bossjones/boss-docker-python3
-    facts:
-      python_version: 3.6.8
-      python_version_major: 3
-      python_version_minor: 6
-      python_version_patch: 8
-      python_gpg_key: 97FC712E4C024BBEA48A61ED3A5CA953F73C700D
-      python_tar_url_base: https://www.python.org/ftp/python
-      python_tar_file_name: Python-{{ python_version }}.tar.xz
-      pip_version: 19.1.1
+  # boss-docker-python3-36:
+  #   aliases:
+  #     - index.docker.io/bossjones/boss-docker-python3
+  #   facts:
+  #     python_version: 3.6.8
+  #     python_version_major: 3
+  #     python_version_minor: 6
+  #     python_version_patch: 8
+  #     python_gpg_key: 0D96DF4D4110E5C43FBFB17F2D347EA6AA65421D
+  #     python_tar_url_base: https://www.python.org/ftp/python
+  #     python_tar_file_name: Python-{{ python_version }}.tar.xz
+  #     pip_version: 19.1.1
 
-  boss-docker-python3-37:
-    aliases:
-      - index.docker.io/bossjones/boss-docker-python3
-    facts:
-      python_version: 3.7.3
-      python_version_major: 3
-      python_version_minor: 7
-      python_version_patch: 3
-      python_gpg_key: 97FC712E4C024BBEA48A61ED3A5CA953F73C700D
-      python_tar_url_base: https://www.python.org/ftp/python
-      python_tar_file_name: Python-{{ python_version }}.tar.xz
-      pip_version: 19.1.1
+  # boss-docker-python3-37:
+  #   aliases:
+  #     - index.docker.io/bossjones/boss-docker-python3
+  #   facts:
+  #     python_version: 3.7.3
+  #     python_version_major: 3
+  #     python_version_minor: 7
+  #     python_version_patch: 3
+  #     python_gpg_key: 0D96DF4D4110E5C43FBFB17F2D347EA6AA65421D
+  #     python_tar_url_base: https://www.python.org/ftp/python
+  #     python_tar_file_name: Python-{{ python_version }}.tar.xz
+  #     pip_version: 19.1.1
