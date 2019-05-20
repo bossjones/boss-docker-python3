@@ -1,0 +1,16 @@
+.vscode
+**/.*.swp
+**/.ropeproject
+**/.cache
+*.pyc
+/venv
+/docker-compose-*.yml
+build/boss-docker-python3*/Dockerfile
+build/boss-docker-python3*/Dockerfile-*
+build/boss-docker-python3*/elasticsearch*.tar.gz
+tests/docker-compose*.yml
+/snapshots
+.pytest_cache
+.vagrant
+.tedi/assets
+.tedi/build

@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+#
+# Print the Elastic Stack version for the current branch, as defined in
+# the 'version.json' file.
+#
+# The version can also be forced by setting the ELASTIC_VERSION environment variable.
+
+import json
+import os
+
+
+def get_hard_coded_version():
+    version_info = json.load(open('version.json'))
+    return version_info['version']
+
+
+def qualify(version):
+    qualifier = os.getenv('VERSION_QUALIFIER')
+    if qualifier:
+        # ignore None or ''
+        return "-".join([version, qualifier])
+    return version
+
+
+def get_version():
+    version = os.getenv('ELASTIC_VERSION')
+    if version:
+        return version
+    return qualify(get_hard_coded_version())
+
+
+if __name__ == '__main__':
+    # Provide a shell compatible interface
+    print(get_version())
