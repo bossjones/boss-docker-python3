@@ -31,7 +31,9 @@ images:
       pip_version: 19.1.1
       # The "image_tag" fact has explicit support inside Tedi. Specify it to have
       # your images tagged something other than "latest".
-      image_tag: 3.6.8
+      os: ubuntu
+      release: bionic
+      image_tag: 3.6.8-bionic-debug
 
   boss-docker-python3-37:
     aliases:
@@ -47,4 +49,6 @@ images:
       pip_version: 19.1.1
       # The "image_tag" fact has explicit support inside Tedi. Specify it to have
       # your images tagged something other than "latest".
-      image_tag: 3.7.3
+      os: ubuntu
+      release: bionic
+      image_tag: 3.7.3-bionic-debug
