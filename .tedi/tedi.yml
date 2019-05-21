@@ -15,7 +15,7 @@ images:
       # your images tagged something other than "latest".
       os: ubuntu
       release: bionic
-      image_tag: 3.5.7-bionic
+      image_tag: 3.5.7-bionic-debug
 
   # boss-docker-python3-36:
   #   aliases:

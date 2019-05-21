@@ -1,0 +1,217 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+import os
+import glob
+import sys
+
+import logging
+import yaml
+import logging
+import shutil
+
+from typing import List
+
+from pathlib import Path
+
+
+logger = logging.getLogger('create-dist')
+
+
+class Paths(object):
+    @property
+    def working_dir_path(self):
+        bin_dir = os.path.dirname(os.path.abspath(__file__))
+        working_dir = os.path.join(bin_dir, os.path.pardir)
+        return Path(os.path.abspath(working_dir))
+
+    @property
+    def assets_path(self):
+        return self.working_dir_path / 'dist'
+
+
+    @property
+    def assets_path(self):
+        return self.working_dir_path / '.tedi' / 'assets'
+
+    @property
+    def build_path(self):
+        return self.working_dir_path / '.tedi' / 'build'
+
+    @property
+    def template_path(self):
+        return self.working_dir_path / '.tedi' / 'template'
+
+paths = Paths()
+
+# print(paths.working_dir_path)
+
+
+class Factset(object):
+    """A dictionary like object for storing facts.
+    A Factset is simply a mapping of strings to strings, as used for variable
+    expansions in Jinja2 templates.
+    The most useful feature of a Factset, when compared to a Dict, is that it
+    sets various defaults at contruction time.
+    Null (None) values are not supported in a Factset. Setting a fact to
+    None deletes it entirely.
+    """
+    def __init__(self, **keyword_facts):
+        self.facts = keyword_facts
+
+        logger.debug(f'New Factset: {self}')
+
+    def __repr__(self):
+        return 'Factset(**%s)' % {k: v for k, v in self.facts.items() if not k.startswith('ENV_')}
+
+    def __getitem__(self, key):
+        return self.facts[key]
+
+    def __setitem__(self, key, value):
+        # Setting a fact to None deletes it.
+        if value is None:
+            try:
+                del(self[key])
+            except KeyError:
+                pass
+            finally:
+                return
+
+        # All facts should be string->string mappings, since they are intended
+        # for use in Jinja2 templates.
+        if not isinstance(key, str):
+            raise ValueError
+        if not isinstance(value, str):
+            raise ValueError
+
+        self.facts[key] = value
+
+    def __delitem__(self, key):
+        del(self.facts[key])
+
+    def __iter__(self):
+        for key in self.facts.keys():
+            yield key
+
+    def __contains__(self, key):
+        return key in self.facts
+
+    def get(self, key, default=None):
+        return self.facts.get(key, default)
+
+    def to_dict(self):
+        """Return a dictionary representation of this Factset."""
+        return self.copy().facts
+
+    def update(self, *args, **kwargs):
+        """Update with new facts, like Dict.update()."""
+        self.facts.update(*args, **kwargs)
+
+    def copy(self):
+        """Return a copy of this Factset (not a reference to it)."""
+        return Factset(**self.facts)
+
+class Image():
+    def __init__(self, image_name: str, facts: Factset = Factset(),
+                 image_aliases: List[str] = [], path=paths.template_path) -> None:
+        self.image_name = image_name
+        self.image_aliases = image_aliases
+        self.facts = facts
+        self.source_dir = path
+
+        self.target_dir = paths.build_path / image_name
+        logger.debug(f'New Image: {self}')
+
+    @classmethod
+    def from_config(cls, name, config, facts: Factset = Factset()):
+        """Create an Image using a configuration block from tedi.yml
+        Like this:
+          nyancat:
+            aliases:
+              - rainbow_cat
+              - happy_cat
+            facts:
+              colorful: true
+        Facts defined in the configuration will be added to the Factset
+        passed in as the "facts" parameter. This is useful for adding
+        image-specific facts on top of more general facts from the project.
+        The underlying Factset is not mutated. An independant copy is made
+        for the Image's use.
+        """
+        if not config:
+            config = {}
+
+        logger.debug(f'Loaded image config for {name}: {config}')
+        facts = facts.copy()
+
+        if 'facts' in config:
+            facts.update(config['facts'])
+
+        return cls(
+            image_name=name,
+            facts=facts,
+            image_aliases=config.get('aliases', [])
+        )
+
+    def __repr__(self):
+        return "Image(source_dir='%s', target_dir='%s', facts=%s)" % \
+            (self.source_dir, self.target_dir, self.facts)
+
+class Artifact():
+    def __init__(self, path=paths.working_dir_path):
+        self.path = path
+        config_folder = self.path / '.tedi'
+        config_path = config_folder / 'tedi.yml'
+
+        try:
+            with open(config_path) as config_file:
+                self.config = yaml.load(config_file.read())
+        except FileNotFoundError:
+            logger.critical(f'No configuration file found at {config_path.resolve()}')
+            fail()
+        if self.config is None:
+            logger.critical(f'Config file "{self.path}/tedi.yml" is empty.')
+            fail()
+        logger.debug(f'Loaded project config from {self.path}: {self.config}')
+
+        if 'facts' in self.config:
+            self.facts = Factset(**self.config['facts'])
+        else:
+            self.facts = Factset()
+
+        # # Set any facts that were passed as CLI flags.
+        # self.facts.update(cli.get_flag('fact', {}))
+
+        # A project has a collection of one or more images.
+        self.images = []
+        for image_name, image_config in self.config['images'].items():
+            self.images.append(Image.from_config(image_name, image_config, self.facts))
+
+    def __repr__(self):
+        return f'Artifact("{self.path}")'
+
+    def print_images(self):
+        """Print each image and definition"""
+        for image in self.images:
+            dist_folder = "{working_dir_path}/dist/{py_major}.{py_minor}/{release}".format(working_dir_path=self.path, py_major=image.facts['python_version_major'], py_minor=image.facts['python_version_minor'], release=image.facts['release'])
+            print(dist_folder)
+
+    def mkdir_images(self):
+        """Mkdir for artifact"""
+        for image in self.images:
+            # print(image)
+            dist_folder = "{working_dir_path}/dist/{py_major}.{py_minor}/{release}".format(working_dir_path=self.path, py_major=image.facts['python_version_major'], py_minor=image.facts['python_version_minor'], release=image.facts['release'])
+            dist_folder = Path(dist_folder)
+            dist_folder.mkdir(parents=True, exist_ok=True)
+            print(f"Made directory: {}".format(dist_folder))
+
+            # Copy The rendered files/folders over to the dist folder
+            shutil.copytree(image.target_dir, dist_folder)
+
+
+            print(f"Copied from {} directory -> {}".format(mage.target_dir, dist_folder))
+
+a = Artifact()
+
+a.mkdir_images()
