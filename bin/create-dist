@@ -203,14 +203,19 @@ class Artifact():
             # print(image)
             dist_folder = "{working_dir_path}/dist/{py_major}.{py_minor}/{release}".format(working_dir_path=self.path, py_major=image.facts['python_version_major'], py_minor=image.facts['python_version_minor'], release=image.facts['release'])
             dist_folder = Path(dist_folder)
-            dist_folder.mkdir(parents=True, exist_ok=True)
-            print(f"Made directory: {}".format(dist_folder))
+            # NOTE: exist_ok=True == mkdir -p
+            # try:
+            #     dist_folder.mkdir(parents=True, exist_ok=True)
+            # except FileExistsError:
+            #     pass
+
+            print("Made directory: {}".format(dist_folder))
 
             # Copy The rendered files/folders over to the dist folder
             shutil.copytree(image.target_dir, dist_folder)
 
 
-            print(f"Copied from {} directory -> {}".format(mage.target_dir, dist_folder))
+            print("Copied from {} directory -> {}".format(image.target_dir, dist_folder))
 
 a = Artifact()
 
