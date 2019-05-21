@@ -225,6 +225,8 @@ class Artifact:
             temp_folder = Path(dist_folder + "-{}".format(uuid_suffix))
             dist_folder = Path(dist_folder)
 
+            print("dist_folder: {}".format(dist_folder))
+
             if dist_folder.exists():
 
                 # NOTE: Only do this if it exists already otherwise skip!!!!
@@ -260,3 +262,4 @@ class Artifact:
 a = Artifact()
 
 a.mkdir_images()
+# a.print_images()

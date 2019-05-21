@@ -4,7 +4,7 @@
 **/.cache
 *.pyc
 /venv
-/docker-compose-*.yml
+# /docker-compose-*.yml
 build/boss-docker-python3*/Dockerfile
 build/boss-docker-python3*/Dockerfile-*
 build/boss-docker-python3*/elasticsearch*.tar.gz
