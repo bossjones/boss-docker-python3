@@ -46,9 +46,6 @@ class Paths():
 
 paths = Paths()
 
-# print(paths.working_dir_path)
-
-
 class Factset():
     """A dictionary like object for storing facts.
     A Factset is simply a mapping of strings to strings, as used for variable
