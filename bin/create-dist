@@ -17,7 +17,7 @@ from pathlib import Path
 from uuid import uuid4
 
 
-logger = logging.getLogger('create-dist')
+logger = logging.getLogger("create-dist")
 
 
 class Paths(object):
@@ -29,20 +29,20 @@ class Paths(object):
 
     @property
     def assets_path(self):
-        return self.working_dir_path / 'dist'
-
+        return self.working_dir_path / "dist"
 
     @property
     def assets_path(self):
-        return self.working_dir_path / '.tedi' / 'assets'
+        return self.working_dir_path / ".tedi" / "assets"
 
     @property
     def build_path(self):
-        return self.working_dir_path / '.tedi' / 'build'
+        return self.working_dir_path / ".tedi" / "build"
 
     @property
     def template_path(self):
-        return self.working_dir_path / '.tedi' / 'template'
+        return self.working_dir_path / ".tedi" / "template"
+
 
 paths = Paths()
 
@@ -58,13 +58,16 @@ class Factset(object):
     Null (None) values are not supported in a Factset. Setting a fact to
     None deletes it entirely.
     """
+
     def __init__(self, **keyword_facts):
         self.facts = keyword_facts
 
-        logger.debug(f'New Factset: {self}')
+        logger.debug(f"New Factset: {self}")
 
     def __repr__(self):
-        return 'Factset(**%s)' % {k: v for k, v in self.facts.items() if not k.startswith('ENV_')}
+        return "Factset(**%s)" % {
+            k: v for k, v in self.facts.items() if not k.startswith("ENV_")
+        }
 
     def __getitem__(self, key):
         return self.facts[key]
@@ -73,7 +76,7 @@ class Factset(object):
         # Setting a fact to None deletes it.
         if value is None:
             try:
-                del(self[key])
+                del (self[key])
             except KeyError:
                 pass
             finally:
@@ -89,7 +92,7 @@ class Factset(object):
         self.facts[key] = value
 
     def __delitem__(self, key):
-        del(self.facts[key])
+        del (self.facts[key])
 
     def __iter__(self):
         for key in self.facts.keys():
@@ -113,16 +116,22 @@ class Factset(object):
         """Return a copy of this Factset (not a reference to it)."""
         return Factset(**self.facts)
 
-class Image():
-    def __init__(self, image_name: str, facts: Factset = Factset(),
-                 image_aliases: List[str] = [], path=paths.template_path) -> None:
+
+class Image:
+    def __init__(
+        self,
+        image_name: str,
+        facts: Factset = Factset(),
+        image_aliases: List[str] = [],
+        path=paths.template_path,
+    ) -> None:
         self.image_name = image_name
         self.image_aliases = image_aliases
         self.facts = facts
         self.source_dir = path
 
         self.target_dir = paths.build_path / image_name
-        logger.debug(f'New Image: {self}')
+        logger.debug(f"New Image: {self}")
 
     @classmethod
     def from_config(cls, name, config, facts: Factset = Factset()):
@@ -143,41 +152,43 @@ class Image():
         if not config:
             config = {}
 
-        logger.debug(f'Loaded image config for {name}: {config}')
+        logger.debug(f"Loaded image config for {name}: {config}")
         facts = facts.copy()
 
-        if 'facts' in config:
-            facts.update(config['facts'])
+        if "facts" in config:
+            facts.update(config["facts"])
 
         return cls(
-            image_name=name,
-            facts=facts,
-            image_aliases=config.get('aliases', [])
+            image_name=name, facts=facts, image_aliases=config.get("aliases", [])
         )
 
     def __repr__(self):
-        return "Image(source_dir='%s', target_dir='%s', facts=%s)" % \
-            (self.source_dir, self.target_dir, self.facts)
+        return "Image(source_dir='%s', target_dir='%s', facts=%s)" % (
+            self.source_dir,
+            self.target_dir,
+            self.facts,
+        )
 
-class Artifact():
+
+class Artifact:
     def __init__(self, path=paths.working_dir_path):
         self.path = path
-        config_folder = self.path / '.tedi'
-        config_path = config_folder / 'tedi.yml'
+        config_folder = self.path / ".tedi"
+        config_path = config_folder / "tedi.yml"
 
         try:
             with open(config_path) as config_file:
                 self.config = yaml.load(config_file.read())
         except FileNotFoundError:
-            logger.critical(f'No configuration file found at {config_path.resolve()}')
+            logger.critical(f"No configuration file found at {config_path.resolve()}")
             fail()
         if self.config is None:
             logger.critical(f'Config file "{self.path}/tedi.yml" is empty.')
             fail()
-        logger.debug(f'Loaded project config from {self.path}: {self.config}')
+        logger.debug(f"Loaded project config from {self.path}: {self.config}")
 
-        if 'facts' in self.config:
-            self.facts = Factset(**self.config['facts'])
+        if "facts" in self.config:
+            self.facts = Factset(**self.config["facts"])
         else:
             self.facts = Factset()
 
@@ -186,7 +197,7 @@ class Artifact():
 
         # A project has a collection of one or more images.
         self.images = []
-        for image_name, image_config in self.config['images'].items():
+        for image_name, image_config in self.config["images"].items():
             self.images.append(Image.from_config(image_name, image_config, self.facts))
 
     def __repr__(self):
@@ -195,7 +206,12 @@ class Artifact():
     def print_images(self):
         """Print each image and definition"""
         for image in self.images:
-            dist_folder = "{working_dir_path}/dist/{py_major}.{py_minor}/{release}".format(working_dir_path=self.path, py_major=image.facts['python_version_major'], py_minor=image.facts['python_version_minor'], release=image.facts['release'])
+            dist_folder = "{working_dir_path}/dist/{py_major}.{py_minor}/{release}".format(
+                working_dir_path=self.path,
+                py_major=image.facts["python_version_major"],
+                py_minor=image.facts["python_version_minor"],
+                release=image.facts["release"],
+            )
             print(dist_folder)
 
     def mkdir_images(self):
@@ -203,36 +219,46 @@ class Artifact():
         for image in self.images:
             uuid_suffix = uuid4()
 
-            dist_folder = "{working_dir_path}/dist/{py_major}.{py_minor}/{release}".format(working_dir_path=self.path, py_major=image.facts['python_version_major'], py_minor=image.facts['python_version_minor'], release=image.facts['release'])
+            dist_folder = "{working_dir_path}/dist/{py_major}.{py_minor}/{release}".format(
+                working_dir_path=self.path,
+                py_major=image.facts["python_version_major"],
+                py_minor=image.facts["python_version_minor"],
+                release=image.facts["release"],
+            )
             temp_folder = Path(dist_folder + "-{}".format(uuid_suffix))
             dist_folder = Path(dist_folder)
 
             if dist_folder.exists():
 
-                # FIXME: Only do this if it exists already otherwise skip!!!!
+                # NOTE: Only do this if it exists already otherwise skip!!!!
                 try:
                     shutil.move(dist_folder, temp_folder)
                 except FileNotFoundError:
                     print("folder not found")
                 finally:
-                    print("Moved directory from {} directory -> {}".format(image.target_dir, temp_folder))
-
+                    print(
+                        "Moved directory from {} directory -> {}".format(
+                            image.target_dir, temp_folder
+                        )
+                    )
 
             # Copy The rendered files/folders over to the dist folder
             shutil.copytree(image.target_dir, dist_folder)
 
-            print("Copied from {} directory -> {}".format(image.target_dir, dist_folder))
-
+            print(
+                "Copied from {} directory -> {}".format(image.target_dir, dist_folder)
+            )
 
             if temp_folder.exists():
-                # FIXME: Only NUKE this if it exists already otherwise skip!!!!
+                # NOTE: Only NUKE this if it exists already otherwise skip!!!!
                 print("About to remove directory {} ".format(temp_folder))
 
                 shutil.rmtree(temp_folder, ignore_errors=False, onerror=None)
 
                 print("Directory nuked {} ".format(temp_folder))
 
-                # FIXME: END
+                # NOTE: END
+
 
 a = Artifact()
 
