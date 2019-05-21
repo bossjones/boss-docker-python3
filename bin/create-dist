@@ -219,6 +219,12 @@ class Artifact():
 
             print("Copied from {} directory -> {}".format(image.target_dir, dist_folder))
 
+            print("About to remove directory {} ".format(temp_folder))
+
+            shutil.rmtree(temp_folder, ignore_errors=False, onerror=None)
+
+            print("Directory nuked {} ".format(temp_folder))
+
 a = Artifact()
 
 a.mkdir_images()
