@@ -22,9 +22,10 @@ render:
 	-v $(CURRENT_DIR):/mnt \
 	docker.elastic.co/tedi/tedi:0.13 build
 
-# build: move
-build:
+tedi-build:
 	tedi build
+
+build: tedi-build move
 
 clean:
 	tedi clean --clean-assets

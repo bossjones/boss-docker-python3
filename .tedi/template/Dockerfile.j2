@@ -199,7 +199,7 @@ RUN set -ex \
 	&& ln -s pydoc3 pydoc \
 	&& ln -s python3 python \
 	&& ln -s python3-config python-config \
-    && pip3 install virtualenv virtualenvwrapper ipython \
+    && pip3 install --no-cache-dir virtualenv virtualenvwrapper ipython \
     && apt-get autoclean -y && \
     apt-get autoremove -y && \
     rm -rf /var/lib/{cache,log}/ && \
