@@ -44,3 +44,8 @@ ci-cli:
 	-w /mnt \
 	-v $(CURRENT_DIR):/mnt \
 	bossjones/docker-pylint:latest bash
+
+push:
+	docker push index.docker.io/bossjones/boss-docker-python3:3.5.7-bionic-debug
+	docker push index.docker.io/bossjones/boss-docker-python3:3.6.8-bionic-debug
+	docker push index.docker.io/bossjones/boss-docker-python3:3.7.3-bionic-debug
