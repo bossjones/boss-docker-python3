@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import json
-import os
 import glob
-import sys
-
+import json
 import logging
-import yaml
-import logging
+import os
 import shutil
-
-from typing import List
-
+import sys
 from pathlib import Path
+from typing import List
 from uuid import uuid4
 
+import yaml
 
 logger = logging.getLogger("create-dist")
 
 
-class Paths(object):
+def fail(exit_code=1):
+    logger.critical("** FATAL ERROR **")
+    sys.exit(exit_code)
+
+class Paths():
     @property
     def working_dir_path(self):
         bin_dir = os.path.dirname(os.path.abspath(__file__))
@@ -28,7 +28,7 @@ class Paths(object):
         return Path(os.path.abspath(working_dir))
 
     @property
-    def assets_path(self):
+    def dist_path(self):
         return self.working_dir_path / "dist"
 
     @property
@@ -49,7 +49,7 @@ paths = Paths()
 # print(paths.working_dir_path)
 
 
-class Factset(object):
+class Factset():
     """A dictionary like object for storing facts.
     A Factset is simply a mapping of strings to strings, as used for variable
     expansions in Jinja2 templates.
@@ -76,7 +76,7 @@ class Factset(object):
         # Setting a fact to None deletes it.
         if value is None:
             try:
-                del (self[key])
+                del self[key]
             except KeyError:
                 pass
             finally:
@@ -92,7 +92,7 @@ class Factset(object):
         self.facts[key] = value
 
     def __delitem__(self, key):
-        del (self.facts[key])
+        del self.facts[key]
 
     def __iter__(self):
         for key in self.facts.keys():

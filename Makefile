@@ -31,3 +31,15 @@ clean:
 
 move:
 	create-dist
+
+docker-create-dist:
+	docker-create-dist /mnt/bin/create-dist
+
+build-ci:
+	docker build -t bossjones/docker-pylint:latest .ci/
+
+ci-cli:
+	docker run --rm -it \
+	-w /mnt \
+	-v $(CURRENT_DIR):/mnt \
+	bossjones/docker-pylint:latest bash
