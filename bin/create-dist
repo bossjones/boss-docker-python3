@@ -14,6 +14,7 @@ import shutil
 from typing import List
 
 from pathlib import Path
+from uuid import uuid4
 
 
 logger = logging.getLogger('create-dist')
@@ -200,20 +201,21 @@ class Artifact():
     def mkdir_images(self):
         """Mkdir for artifact"""
         for image in self.images:
-            # print(image)
-            dist_folder = "{working_dir_path}/dist/{py_major}.{py_minor}/{release}".format(working_dir_path=self.path, py_major=image.facts['python_version_major'], py_minor=image.facts['python_version_minor'], release=image.facts['release'])
-            dist_folder = Path(dist_folder)
-            # NOTE: exist_ok=True == mkdir -p
-            # try:
-            #     dist_folder.mkdir(parents=True, exist_ok=True)
-            # except FileExistsError:
-            #     pass
+            uuid_suffix = uuid4()
 
-            print("Made directory: {}".format(dist_folder))
+            dist_folder = "{working_dir_path}/dist/{py_major}.{py_minor}/{release}".format(working_dir_path=self.path, py_major=image.facts['python_version_major'], py_minor=image.facts['python_version_minor'], release=image.facts['release'])
+            temp_folder = Path(dist_folder + "-{}".format(uuid_suffix))
+            dist_folder = Path(dist_folder)
+
+            try:
+                shutil.move(dist_folder, temp_folder)
+            except FileNotFoundError:
+                print("folder not found")
+            finally:
+                print("Moved directory from {} directory -> {}".format(image.target_dir, temp_folder))
 
             # Copy The rendered files/folders over to the dist folder
             shutil.copytree(image.target_dir, dist_folder)
-
 
             print("Copied from {} directory -> {}".format(image.target_dir, dist_folder))
 
