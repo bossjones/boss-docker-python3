@@ -1,4 +1,5 @@
 # encoding utf-8
+SHELL = /bin/bash
 
 # export PATH := $(PATH)
 export PATH := ./bin:$(PATH)
@@ -20,3 +21,9 @@ render:
 	-v /var/run/docker.sock:/var/run/docker.sock \
 	-v $(CURRENT_DIR):/mnt \
 	docker.elastic.co/tedi/tedi:0.13 build
+
+build:
+	tedi build
+
+clean:
+	tedi clean --clean-assets

@@ -13,6 +13,8 @@ tedi_debug="${TEDI_DEBUG:-false}"
 # Build up a Docker run command.
 declare -a command
 command+=(docker run)
+command+=(--dns 8.8.8.8)
+command+=(--dns 8.8.4.4)
 
 # Mount the Docker socket inside the container, since Tedi interacts with Docker.
 command+=(-v /var/run/docker.sock:/var/run/docker.sock)
