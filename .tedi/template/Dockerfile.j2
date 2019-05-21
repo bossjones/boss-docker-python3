@@ -208,6 +208,10 @@ RUN set -ex \
 # Overlay the root filesystem from this repo
 COPY ./container/root /
 
+{% if python_version == '3.7.3' -%}
+ENV PYTHONWARNINGS ignore
+{% endif -%}
+
 RUN goss -g /tests/goss.python3.yaml validate
 
 # NOTE: intentionally NOT using s6 init as the entrypoint
