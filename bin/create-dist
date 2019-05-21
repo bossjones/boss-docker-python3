@@ -207,13 +207,15 @@ class Artifact():
             temp_folder = Path(dist_folder + "-{}".format(uuid_suffix))
             dist_folder = Path(dist_folder)
 
-            # FIXME: Only do this if it exists already otherwise skip!!!!
-            try:
-                shutil.move(dist_folder, temp_folder)
-            except FileNotFoundError:
-                print("folder not found")
-            finally:
-                print("Moved directory from {} directory -> {}".format(image.target_dir, temp_folder))
+            if dist_folder.exists():
+
+                # FIXME: Only do this if it exists already otherwise skip!!!!
+                try:
+                    shutil.move(dist_folder, temp_folder)
+                except FileNotFoundError:
+                    print("folder not found")
+                finally:
+                    print("Moved directory from {} directory -> {}".format(image.target_dir, temp_folder))
 
 
             # Copy The rendered files/folders over to the dist folder
@@ -221,14 +223,16 @@ class Artifact():
 
             print("Copied from {} directory -> {}".format(image.target_dir, dist_folder))
 
-            # FIXME: Only NUKE this if it exists already otherwise skip!!!!
-            print("About to remove directory {} ".format(temp_folder))
 
-            shutil.rmtree(temp_folder, ignore_errors=False, onerror=None)
+            if temp_folder.exists():
+                # FIXME: Only NUKE this if it exists already otherwise skip!!!!
+                print("About to remove directory {} ".format(temp_folder))
 
-            print("Directory nuked {} ".format(temp_folder))
+                shutil.rmtree(temp_folder, ignore_errors=False, onerror=None)
 
-            # FIXME: END
+                print("Directory nuked {} ".format(temp_folder))
+
+                # FIXME: END
 
 a = Artifact()
 
